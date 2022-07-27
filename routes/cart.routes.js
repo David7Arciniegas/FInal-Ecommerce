@@ -5,7 +5,8 @@ const {
 	addProductToCart,
     updateCartProduct,
     removeProductFromCart,
-    purchaseUserCart,
+    purchaseCart,
+	getUserCart
 } = require('../controllers/cart.controller');
 
 // Middlewares
@@ -22,6 +23,7 @@ cartRouter
 	.post('/add-product', addProductToCart)
 	.patch('/update-cart', cartExists, updateCartProduct)
 	.delete('/:productId', cartExists, removeProductFromCart)
-	.post('/purchase', cartExists, purchaseUserCart)
+	.post('/purchase', cartExists, purchaseCart)
+	.get("/get-user-cart", getUserCart)
 
 module.exports = { cartRouter };
