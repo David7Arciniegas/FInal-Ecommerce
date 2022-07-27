@@ -1,5 +1,5 @@
 // Models
-const {Cart} = require("../models/carts.model");
+const {Carts} = require("../models/carts.model");
 const {Products} = require("../models/products.model");
 const {ProductsInCart} = require("../models/productsInCart.model");
 const {Orders} = require("../models/orders.model");
@@ -9,49 +9,59 @@ const {Orders} = require("../models/orders.model");
 const {catchAsync} = require("../utils/catchAsync.util");
 
 // Add Product to Cart
+
 const addProductToCart = catchAsync(async (req, res, next) => {
-    const userId = req.sessionUser.id;
-    const {productId, quantity} = req.body;
-    const {product} = req;
-
-
-
-    // check product quantity and body quantity
-    if (product.quantity === 5 && quantity > 1)
-        return next(new AppError("Cart quantity limit exceeded", 409));
-
-    // get user cart, create otherwise
-    let userCart = await Cart.findOne({
-        where: {status: "active", userId},
-        include: [{model: ProductsInCart}],
+    const { sessionUser } = req;
+    const { productId, quantity } = req.body;
+  
+    // Validate input qty
+    const product = await Products.findOne({
+      where: { id: productId, status: 'active' },
     });
-    if (!userCart) {
-        userCart = await Cart.create({userId, status: 'active'});
+  
+    if (!product) {
+      return next(new AppError('Invalid product', 404));
+    } else if (quantity > product.quantity) {
+      return next(
+        new AppError(
+          `This product only has ${product.quantity} items available`,
+          400
+        )
+      );
     }
-
-    // check if product to add exists in user cart
-    const productsInCart_ = userCart.productsInCart.findOne(element => element.id === product.id)
-
-    if (productsInCart_) {
-        return next(new AppError("Product has already been added", 404));
-    }
-    if (productsInCart_.status === "removed") {
-        productsInCart_.status = "active"
-        productsInCart_.quantity = quantity
-    }
-
-    // push element to the cart
-    userCart.productsInCart.push(product)
-    // push query
-
-    const fullCart = await Cart.update(userCart);
-
-
-    res.status(201).json({
-        status: "success",
-        fullCart,
+  
+    // Check if cart exists
+    const cart = await Carts.findOne({
+      where: { status: 'active', userId: sessionUser.id },
     });
-});
+  
+    if (!cart) {
+      // Create new cart for user
+      const newCart = await Carts.create({ userId: sessionUser.id });
+  
+      // Add product to newly created cart
+      await ProductsInCart.create({
+        cartId: newCart.id,
+        productId,
+        quantity,
+      });
+    } else {
+      // Cart already exists
+      // Check if product already exists in cart
+      const productExists = await ProductsInCart.findOne({
+        where: { cartId: cart.id, productId },
+      });
+  
+      if (productExists) {
+        return next(new AppError('Product is already in the cart', 400));
+      }
+  
+      await ProductsInCart.create({ cartId: cart.id, productId, quantity });
+    }
+  
+    res.status(200).json({ status: 'success' });
+  });
+
 
 // Update Cart Product
 
@@ -62,7 +72,7 @@ const updateCartProduct = catchAsync(async (req, res, next) => {
 
 
     // get user cart, error otherwise
-    let userCart = await Cart.findOne({
+    let userCart = await Carts.findOne({
         where: {status: "active", userId},
         include: [{model: ProductsInCart}],
     });
@@ -87,7 +97,7 @@ const updateCartProduct = catchAsync(async (req, res, next) => {
 
     //push query
 
-    const fullCart = await Cart.update(userCart);
+    const fullCart = await Carts.update(userCart);
 
     res.status(201).json({
         status: "success",

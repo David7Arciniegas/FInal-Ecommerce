@@ -25,8 +25,7 @@ const { upload } = require('../utils/upload.util');
 
 productsRouter
     .use(protectSession)
-    .post("/",createProductValidators, createProduct)
-    .post(upload.array("productImg", 5), createProduct)
+    .post("/", upload.array("productImg", 5), createProductValidators, createProduct)
     .get('/', getAllProducts)
     .get("/categories", getAllCategories)
     .get('/:id', getProductById)
