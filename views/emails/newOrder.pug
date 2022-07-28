@@ -1,0 +1,14 @@
+extends base
+
+block emailContent
+  p A new order has been created
+ 
+  div(class="post-card")
+    h3 Total Price: #{totalPrice} 
+     ul 
+      each val in myProducts
+       li=" Product Name " + val.title 
+         li=" Unitary Price " + val.price
+           li=" Quantity" + val.quantity
+
+    

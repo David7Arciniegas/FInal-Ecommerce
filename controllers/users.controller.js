@@ -11,7 +11,7 @@ const { Carts } = require("../models/carts.model");
 // Utils
 const { catchAsync } = require("../utils/catchAsync.util");
 const { AppError } = require("../utils/appError.util");
-//const { Email } = require("../utils/email.util");
+const { Email } = require("../utils/email.util");
 
 // Gen secrets for JWT, require('crypto').randomBytes(64).toString('hex')
 
@@ -36,7 +36,7 @@ const createUser = catchAsync(async (req, res, next) => {
   newUser.password = undefined;
 
   // Send welcome email
-  //await new Email(email).sendWelcome(username);
+  await new Email(email).sendWelcome(username);
 
   res.status(201).json({
     status: "success",

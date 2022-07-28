@@ -39,8 +39,6 @@ const createProduct = catchAsync(async (req, res, next) => {
 		await Promise.all(filesPromises);
 	}
 
-  // Send mail when post has been created
-  //await new Email(sessionUser.email).sendNewPost(title, content);
 
   res.status(201).json({
     status: "success",
@@ -78,18 +76,7 @@ const getProductById = catchAsync(async (req, res, next) => {
       message: "Product not found",
     });
   }
-/*
-  // Map async
-  const postImgsPromises = post.postImgs.map(async (postImg) => {
-    const imgRef = ref(storage, postImg.imgUrl);
 
-    const imgFullPath = await getDownloadURL(imgRef);
-
-    postImg.imgUrl = imgFullPath;
-  });
-
-  await Promise.all(postImgsPromises);
-*/
   res.status(200).json({
     status: "success",
     product,

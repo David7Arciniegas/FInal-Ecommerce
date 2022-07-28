@@ -11,12 +11,12 @@ html(lang="en")
 		h1(class="title") #{title}
 
 		div(class="container")
-			if posts.length === 0
+			if users.length === 0
 				p No posts available 
 			else
-				each post in posts
+				each user in users
 					div(class="post-card")
-						h3 #{post.title}
+						h3 #{users.username}
 						p #{post.content}
 
 	script(src="./index.js")

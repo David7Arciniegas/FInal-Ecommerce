@@ -50,14 +50,18 @@ class Email {
 		});
 	}
 
-	async sendWelcome(name) {
-		await this.send('welcome', 'Welcome to our app', { name });
+	async sendWelcome(username) {
+		await this.send('welcome', 'Welcome to our app', 
+		{ username });
 	}
 
-	async sendNewPost(title, content) {
-		await this.send('newPost', 'You have created a new post', {
-			title,
-			content,
+	async sendNewOrder(totalPrice, myProducts) {
+		
+		
+		await this.send('newOrder', 'You have created a new order', {
+			totalPrice,
+			myProducts
+			
 		});
 	}
 }
